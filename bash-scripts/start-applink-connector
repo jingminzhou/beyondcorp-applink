@@ -26,6 +26,7 @@ CONTAINER_NAME='bce-applink-connector'
 CONTAINER_NETWORK='host'
 CONTAINER_PORT_MAPPING=''
 SERVICE_ACCOUNT=''
+DEFAULT_CREDENTIAL_FILE="${HOME}/.config/gcloud/application_default_credentials.json"
 
 function usage () {
   cat << USAGE
@@ -120,8 +121,11 @@ echo
 gcloud info --run-diagnostics 2>&1 | tee >(cat >&2) | grep -i 'error' >/dev/null && \
   { echo; echo 'Please check the network and run this script again'; exit 1; }
 
-# Update Application Default Credentials for gcloud
-gcloud auth login --update-adc
+if [ ! -r ${DEFAULT_CREDENTIAL_FILE} ]; then
+  # Update Application Default Credentials for gcloud
+  gcloud auth login --update-adc
+fi
+
 # Register gcloud as a Docker credential helper
 gcloud auth configure-docker
 
@@ -138,7 +142,7 @@ if [[ ! -d /etc/applink/connections ]]; then
 fi
 
 # Copy Application Default Credentials to Applink configurations directory
-sudo cp ~/.config/gcloud/application_default_credentials.json /etc/applink/config/
+sudo cp ${DEFAULT_CREDENTIAL_FILE} /etc/applink/config/
 
 # Use gsutil to fetch the connection configuration file from GCS and move it
 # into the Applink configurations directory
