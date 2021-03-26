@@ -149,6 +149,13 @@ sudo mv "${APP_CONNECTION_FILE}" /etc/applink/connections
 docker_flags=(
   -d
   --read-only
+  --log-driver json-file
+  --log-opt mode=non-blocking
+  --log-opt max-buffer-size=1m
+  --log-opt max-size=8m
+  --log-opt max-file=3
+  --log-opt labels=product_log_label
+  --label product_log_label=applink-log
   -v /etc/applink:/applink
   -e GOOGLE_APPLICATION_CREDENTIALS=/applink/config/${APP_CREDENTIAL_FILE}
   --network="${CONTAINER_NETWORK}"
